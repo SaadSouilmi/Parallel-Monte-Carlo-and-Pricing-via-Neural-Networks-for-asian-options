@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from collections import deque
 
 
 class MLP(nn.Module):
@@ -73,5 +74,9 @@ def train(model, optimizer, scheduler, loss_fn, train_loader, valid_loader, devi
             progress_bar.set_description(logs)
             print(logs)
             scheduler.step() # Incrementing scheduler
+            # Save training_loss and validation_loss
+            if epoch % 500 == 0 and epoch > 0:
+                np.save("training_loss", training_loss)
+                np.save("validation_loss", validation_loss)
 
     return training_loss, validation_loss
