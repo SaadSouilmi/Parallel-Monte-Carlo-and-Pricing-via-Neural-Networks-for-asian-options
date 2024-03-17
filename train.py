@@ -2,8 +2,9 @@ import numpy as np
 import torch
 import torch.optim as optim
 from model import MLP, train
+from argparse import ArgumentParser
+import json
 from sklearn.model_selection import train_test_split
-
 
 seed = 42
 torch.manual_seed(42)
@@ -12,16 +13,27 @@ torch.backends.cudd.benchmark = False
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Specifyng the model
-config = dict(input_dim=5,
-              output_dim=1,
-              hidden_dim=400,
-              depth=4,
-              batch_size=512,
-              lr=1e-3,
-              base_lr=1e-5,
-              max_lr=1e-3,
-              epochs=30000,
-              eval_freq=25)
+
+parser = ArgumentParser(description="Model config")
+parser.add_argument("--input_dim", default=5, type=int)
+parser.add_argument("--output_dim", default=1, type=int)
+parser.add_argument("--hidden_dim", default=400, type=int)
+parser.add_argument("--depth", default=4, type=int)
+parser.add_argument("--batch_size", default=512, type=int)
+parser.add_argument("--lr", default=1e-3, type=float)
+parser.add_argument("--base_lr", default=1e-5, type=float)
+parser.add_argument("--max_lr", default=1e-3, type=float)
+parser.add_argument("--epochs", default=30000, type=int)
+parser.add_argument("--eval_freq", default=25, type=int)
+
+args = parser.parse_args()
+config = vars(args)
+
+# saving last config used
+with open("last_config", "w") as fp: 
+  json.dump(config, fp)
+
+# Initializing the model
 model = MLP(input_dim=config["input_dim"],
             output_dim=config["output_dim"],
             hidden_dim=config["hidden_dim"],
