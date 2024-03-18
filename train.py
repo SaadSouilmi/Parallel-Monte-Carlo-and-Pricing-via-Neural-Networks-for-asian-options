@@ -15,7 +15,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Specifyng the model
 
 parser = ArgumentParser(description="Model config")
-parser.add_argument("--input_dim", default=5, type=int)
+parser.add_argument("--input_dim", default=6, type=int)
 parser.add_argument("--output_dim", default=1, type=int)
 parser.add_argument("--hidden_dim", default=400, type=int)
 parser.add_argument("--depth", default=4, type=int)
