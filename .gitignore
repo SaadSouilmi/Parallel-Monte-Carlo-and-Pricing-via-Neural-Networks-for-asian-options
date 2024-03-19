@@ -1,0 +1,6 @@
+*train.npy
+*valid.npy
+*loss.npy
+*.pth
+venv
+__pycache__

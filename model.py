@@ -36,7 +36,7 @@ class MLP(nn.Module):
             x = self.activation(layer(x))
             if self.normalization is not None:
                 x = self.normalization(x)
-        return nn.functional.ReLU(
+        return nn.functional.relu(
             self.output_layer(x)
         )  # We run the last layer through a relu since price is positive
 
@@ -62,47 +62,47 @@ def train(
         for epoch in range(epochs):
             # Gradient descent over train dataloader
             train_loss = 0
-            model.train()
-            for inputs, targets in train_loader:
-                inputs = inputs.to(device)
-                targets = targets.to(device)
-                optimizer.zero_grad()
-                outputs = model(inputs)
-                loss = loss_fn(outputs, targets)
-                loss.backward()
-                optimizer.step()
-                train_loss += loss
-            train_loss = train_loss / len(train_loader)
-            training_loss.append(train_loss)  # Saving result
+            valid_loss = 0
+            with tqdm.tqdm(
+                total=len(train_loader), desc=f"Epoch: {epoch}", position=0, leave=True
+            ) as epoch_progress_bar:
+                for i, (inputs, targets) in enumerate(train_loader):
+                    model.train()
+                    inputs = inputs.to(device)
+                    targets = targets.to(device)
+                    optimizer.zero_grad()
+                    outputs = model(inputs)
+                    loss = loss_fn(outputs.flatten(), targets)
+                    loss.backward()
+                    optimizer.step()
+                    train_loss += loss
 
-            # Model evaluation
-            if epoch % eval_freq == 0:
-                valid_loss = 0
-                model.eval()
-                with torch.no_grad():
-                    for inputs, targets in valid_loader:
-                        inputs = inputs.to(device)
-                        targets = targets.to(device)
-                        outputs = model(inputs)
-                        loss = loss_fn(outputs, targets)
-                        valid_loss += loss
-                valid_loss = valid_loss / len(valid_loader)
-                validation_loss.append(valid_loss)  # Saving result
+                    if i % eval_freq == 0:
+                        valid_loss = 0
+                        model.eval()
+                        with torch.no_grad():
+                            for inputs, targets in valid_loader:
+                                inputs = inputs.to(device)
+                                targets = targets.to(device)
+                                outputs = model(inputs)
+                                loss = loss_fn(outputs.flatten(), targets)
+                                valid_loss += loss
+                        valid_loss = valid_loss / len(valid_loader)
+                        train_loss = train_loss / eval_freq
 
-                # Setting checkpoints
-                if checkpoint and valid_loss < best_validation_loss:
-                    best_validation_loss = valid_loss
-                    torch.save(model.state_dict(), "checkpoint.pth")
-
-            # Training logs
-            logs = f"Epoch {epoch}: lr = {scheduler.get_last_lr():.5f}, training_loss = {train_loss}, best_validation_loss = {best_validation_loss}"
-            progress_bar.update(1)
-            progress_bar.set_description(logs)
-            print(logs)
-            scheduler.step()  # Incrementing scheduler
-            # Save training_loss and validation_loss
-            if epoch % 500 == 0 and epoch > 0:
-                np.save("training_loss", training_loss)
-                np.save("validation_loss", validation_loss)
+                        # Setting checkpoints
+                        if checkpoint and valid_loss < best_validation_loss:
+                            print("Checkpoint")
+                            best_validation_loss = valid_loss
+                            torch.save(model.state_dict(), "checkpoint.pth")
+                        print(
+                            f"Epoch: {epoch}, lr = {scheduler.get_last_lr()} , training_loss = {train_loss}, validation_loss = {valid_loss}"
+                        )
+                        scheduler.step()
+                        # Caching results
+                        validation_loss.append(valid_loss.item())
+                        training_loss.append(train_loss.item())
+                        np.save("training_loss", training_loss)
+                        np.save("validation_loss", validation_loss)
 
     return training_loss, validation_loss

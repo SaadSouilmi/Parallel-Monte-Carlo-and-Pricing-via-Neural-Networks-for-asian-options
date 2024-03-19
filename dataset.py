@@ -1,12 +1,14 @@
+import torch
 from torch.utils.data import Dataset
 import numpy as np
 
 
 class PayoffDataset(Dataset):
+    """Custom dataset class containing sample parameters and corresponding sampled payoffs"""
 
     def __init__(self, sample_params, sample_payoffs):
-        self.sample_params = sample_params
-        self.sample_payoffs = sample_payoffs
+        self.sample_params = torch.tensor(sample_params, dtype=torch.float)
+        self.sample_payoffs = torch.tensor(sample_payoffs, dtype=torch.float)
         self.nb_samples = len(self.sample_params)
         self.nb_paths = self.sample_payoffs.shape[1]
 
