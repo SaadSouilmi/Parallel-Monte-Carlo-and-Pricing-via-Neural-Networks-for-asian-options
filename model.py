@@ -7,10 +7,20 @@ from collections import deque
 
 
 class MLP(nn.Module):
-    def __init__(self, input_dim, output_dim, depth, hidden_dim, activation=nn.SiLU(), normalization=None):
+    def __init__(
+        self,
+        input_dim,
+        output_dim,
+        depth,
+        hidden_dim,
+        activation=nn.SiLU(),
+        normalization=None,
+    ):
         super(MLP, self).__init__()
         self.input_layer = nn.Linear(input_dim, hidden_dim)
-        self.hidden_layers = nn.ModuleList([nn.Linear(hidden_dim, hidden_dim) for _ in range(depth-1)])
+        self.hidden_layers = nn.ModuleList(
+            [nn.Linear(hidden_dim, hidden_dim) for _ in range(depth - 1)]
+        )
         self.output_layer = nn.Linear(hidden_dim, output_dim)
         self.activation = activation
         if normalization == "batch":
@@ -26,10 +36,24 @@ class MLP(nn.Module):
             x = self.activation(layer(x))
             if self.normalization is not None:
                 x = self.normalization(x)
-        return nn.functional.ReLU(self.output_layer(x)) # We run the last layer through a relu since price is positive
+        return nn.functional.ReLU(
+            self.output_layer(x)
+        )  # We run the last layer through a relu since price is positive
+
 
 # Training loop
-def train(model, optimizer, scheduler, loss_fn, train_loader, valid_loader, device, epochs=100, eval_freq=5, checkpoint=True):
+def train(
+    model,
+    optimizer,
+    scheduler,
+    loss_fn,
+    train_loader,
+    valid_loader,
+    device,
+    epochs=100,
+    eval_freq=5,
+    checkpoint=True,
+):
     training_loss = deque()
     validation_loss = deque()
     best_validation_loss = float("inf")
@@ -49,7 +73,7 @@ def train(model, optimizer, scheduler, loss_fn, train_loader, valid_loader, devi
                 optimizer.step()
                 train_loss += loss
             train_loss = train_loss / len(train_loader)
-            training_loss.append(train_loss) # Saving result
+            training_loss.append(train_loss)  # Saving result
 
             # Model evaluation
             if epoch % eval_freq == 0:
@@ -63,7 +87,7 @@ def train(model, optimizer, scheduler, loss_fn, train_loader, valid_loader, devi
                         loss = loss_fn(outputs, targets)
                         valid_loss += loss
                 valid_loss = valid_loss / len(valid_loader)
-                validation_loss.append(valid_loss) # Saving result
+                validation_loss.append(valid_loss)  # Saving result
 
                 # Setting checkpoints
                 if checkpoint and valid_loss < best_validation_loss:
@@ -75,7 +99,7 @@ def train(model, optimizer, scheduler, loss_fn, train_loader, valid_loader, devi
             progress_bar.update(1)
             progress_bar.set_description(logs)
             print(logs)
-            scheduler.step() # Incrementing scheduler
+            scheduler.step()  # Incrementing scheduler
             # Save training_loss and validation_loss
             if epoch % 500 == 0 and epoch > 0:
                 np.save("training_loss", training_loss)
