@@ -4,7 +4,6 @@ import torch.optim as optim
 from model import MLP, train
 from argparse import ArgumentParser
 import json
-from sklearn.model_selection import train_test_split
 
 seed = 42
 torch.manual_seed(42)
@@ -46,20 +45,26 @@ loss_fn = torch.nn.MSELoss()
 
 
 # Data Loading
-# TODO
-X = np.load(X_path)
-Y = np.load(Y_path)
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42, shuffle=True)
-
-dtype = torch.float
+dtype = torch.float32
+# train data
+with open("X_train.npy", "rb") as f:
+  X_train = np.load(f)
+with open("Y_train.npy", "rb") as f:
+  Y_train = np.load(f)
 dataset_train = torch.utils.data.TensorDataset(
     torch.from_numpy(X_train).type(dtype), torch.from_numpy(Y_train).type(dtype)
 )
+train_loader = torch.utils.data.DataLoader(dataset_train, batch_size=config["batch_size"], shuffle=True)
+
+# test data
+with open("X_valid.npy", "rb") as f:
+  X_valid = np.load("X_valid.npy")
+with open("Y_valid.npy", "rb") as f:
+  Y_valid = np.load("Y_valid.npy")
 dataset_valid = torch.utils.data.TensorDataset(
-    torch.from_numpy(X_test).type(dtype), torch.from_numpy(Y_test).type(dtype)
+    torch.from_numpy(X_valid).type(dtype), torch.from_numpy(Y_valid).type(dtype)
 )
-loader_train = torch.utils.data.DataLoader(dataset_train, batch_size=config["batch_size"], shuffle=True)
-loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=config["batch_size"], shuffle=False)
+valid_loader = torch.utils.data.DataLoader(dataset_valid, batch_size=config["batch_size"], shuffle=False)
 
 
 if __name__ == "main":

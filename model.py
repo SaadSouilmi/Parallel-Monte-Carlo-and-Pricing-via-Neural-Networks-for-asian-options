@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import tqdm
+import numpy as np
 from collections import deque
 
 
