@@ -24,9 +24,9 @@ parser.add_argument("--batch_size_train", default=2048, type=int)
 parser.add_argument("--batch_size_valid", default=1024, type=int)
 parser.add_argument("--lr", default=1e-3, type=float)
 parser.add_argument("--base_lr", default=1e-5, type=float)
-parser.add_argument("--max_lr", default=1e-3, type=float)
-parser.add_argument("--epochs", default=5, type=int)
-parser.add_argument("--eval_freq", default=100, type=int)
+parser.add_argument("--max_lr", default=1e-4, type=float)
+parser.add_argument("--epochs", default=1000, type=int)
+parser.add_argument("--eval_freq", default=1, type=int)
 
 args = parser.parse_args()
 config = vars(args)
@@ -48,8 +48,8 @@ scheduler = optim.lr_scheduler.CyclicLR(
     optimizer,
     base_lr=config["base_lr"],
     max_lr=config["max_lr"],
-    step_size_up=5,
-    step_size_down=5,
+    step_size_up=25,
+    step_size_down=25,
 )
 loss_fn = torch.nn.MSELoss()
 
@@ -60,9 +60,15 @@ dtype = torch.float32
 # train data
 with open("X_train.npy", "rb") as f:
     X_train = np.load(f)
-with open("Y_train.npy", "rb") as f:
-    Y_train = np.load(f)
-dataset_train = PayoffDataset(X_train, Y_train)
+# with open("Y_train.npy", "rb") as f:
+#     Y_train = np.load(f)
+with open("Y_train_averaged.npy", "rb") as f:
+    Y_train_averaged = np.load(f)
+# dataset_train = PayoffDataset(X_train, Y_train)
+dataset_train = torch.utils.data.TensorDataset(
+    torch.from_numpy(X_train).type(dtype),
+    torch.from_numpy(Y_train_averaged).type(dtype),
+)
 train_loader = torch.utils.data.DataLoader(
     dataset_train,
     batch_size=config["batch_size_train"],

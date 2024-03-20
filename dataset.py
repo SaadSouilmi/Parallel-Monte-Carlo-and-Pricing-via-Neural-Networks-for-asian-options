@@ -4,7 +4,9 @@ import numpy as np
 
 
 class PayoffDataset(Dataset):
-    """Custom dataset class containing sample parameters and corresponding sampled payoffs"""
+    """Custom dataset class containing sample parameters and corresponding sampled payoffs
+    This custom dataset is used to directly learn the payoffs instead of and MC estimation of
+    the price."""
 
     def __init__(self, sample_params, sample_payoffs):
         self.sample_params = torch.tensor(sample_params, dtype=torch.float)
