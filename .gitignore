@@ -4,3 +4,5 @@
 *.pth
 venv
 __pycache__
+Y_train_averaged.npy
+data

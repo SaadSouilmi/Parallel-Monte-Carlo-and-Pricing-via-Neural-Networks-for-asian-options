@@ -53,6 +53,9 @@ def train(
     epochs=100,
     eval_freq=5,
     checkpoint=True,
+    checkpoint_path="checkpoint.pth",
+    training_loss_path="training_loss",
+    validation_loss_path="validation_loss",
 ):
     training_loss = deque()
     validation_loss = deque()
@@ -93,10 +96,10 @@ def train(
                 if checkpoint and valid_loss < best_validation_loss:
                     print("Checkpoint")
                     best_validation_loss = valid_loss
-                    torch.save(model.state_dict(), "checkpoint.pth")
+                    torch.save(model.state_dict(), checkpoint_path)
                 # Caching results
-                np.save("training_loss", training_loss)
-                np.save("validation_loss", validation_loss)
+                np.save(training_loss_path, training_loss)
+                np.save(validation_loss_path, validation_loss)
 
             desc = f"Epoch: {epoch}, lr = {scheduler.get_last_lr()} , training_loss = {train_loss}, validation_loss = {valid_loss}"
             scheduler.step()

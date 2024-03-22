@@ -58,13 +58,12 @@ loss_fn = torch.nn.MSELoss()
 print("########## LOADING TRAIN DATA ##########")
 dtype = torch.float32
 # train data
-with open("X_train.npy", "rb") as f:
+with open("data/X_train.npy", "rb") as f:
     X_train = np.load(f)
-# with open("Y_train.npy", "rb") as f:
-#     Y_train = np.load(f)
-with open("Y_train_averaged.npy", "rb") as f:
+
+with open("data/Y_train_averaged_10kpaths.npy", "rb") as f:
     Y_train_averaged = np.load(f)
-# dataset_train = PayoffDataset(X_train, Y_train)
+
 dataset_train = torch.utils.data.TensorDataset(
     torch.from_numpy(X_train).type(dtype),
     torch.from_numpy(Y_train_averaged).type(dtype),
@@ -78,9 +77,9 @@ print("########## TRAIN DATA LOADED ##########")
 print("    ")
 # test data
 print("########## LOADING VALIDATION DATA ##########")
-with open("X_valid.npy", "rb") as f:
+with open("data/X_valid.npy", "rb") as f:
     X_valid = np.load("X_valid.npy")
-with open("Y_valid.npy", "rb") as f:
+with open("data/Y_valid.npy", "rb") as f:
     Y_valid = np.load("Y_valid.npy")
 dataset_valid = torch.utils.data.TensorDataset(
     torch.from_numpy(X_valid).type(dtype), torch.from_numpy(Y_valid).type(dtype)
@@ -106,6 +105,8 @@ if __name__ == "__main__":
         device,
         epochs=config["epochs"],
         eval_freq=config["eval_freq"],
+        checkpoint=True,
+        checkpoint_path="checkpoints/checkpoint.pth",
+        training_loss_path="logs/training_loss",
+        validation_loss_path="logs/validation_loss",
     )
-    np.save("training_loss", training_loss)
-    np.save("validation_loss", validation_loss)
