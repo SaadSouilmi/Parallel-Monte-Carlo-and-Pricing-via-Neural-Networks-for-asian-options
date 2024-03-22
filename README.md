@@ -6,9 +6,9 @@ $$dS_t = rS_tdt + \sigma S_tdW(t)$$
 Which is equivalent to:
 $$d\log(S_t) = \left(r - \frac{\sigma^2}{2}\right)dt + \sigma dW(t)$$
 The corresponding Euler-Maruyama scheme for a discrete grid $\{t_k = \frac{kT}{n}| k\in\{0,...,n\}\}$ is:
-$$S_{t_{k+1}} = S_{t_k}\left(1 + r\frac{T}{n} + \sigma\sqrt{\frac{T}{n}} Z_{k+1}\right)$$
+$$ S_{t_{k+1}} = S_{t_k}\left(1 + r\frac{T}{n} + \sigma\sqrt{\frac{T}{n}} Z_{k+1}\right)$$
 Otherwise, if we consider the log spot: 
-$$\log(S_{t_{k+1}})  = \log(S_{t_k}) + \left(r - \frac{\sigma^2}{2}\right)\frac{T}{n} + \sigma \sqrt\frac{T}{n} Z_{k+1}$$
+$$\quad\log(S_{t_{k+1}})  = \log(S_{t_k}) + \left(r - \frac{\sigma^2}{2}\right)\frac{T}{n} + \sigma \sqrt\frac{T}{n} Z_{k+1}$$
 Where $Z$ are i.i.d standard normal variables.
 
 We want to compute the following price :
