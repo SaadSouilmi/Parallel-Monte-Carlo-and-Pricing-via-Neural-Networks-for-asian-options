@@ -25,6 +25,6 @@ $$\theta^* \in argmin_{\theta\in\Theta}\tilde{L}(\theta) = argmin_{\theta\in\The
 
 $$\text{Since  }F(x) = \mathbb E\left[(S_T - I_T)^+|x\right]$$
 
-$$\tilde{L}(\theta) - L(\theta) = \mathbb E_{x\sim D}\left[\text{Var}((S_T - I_T)^+|x)\right]\Longrightarrow \partial_\theta \tilde{L}(\theta) = \partial_\theta L(\theta)$$
+$$\tilde{L}(\theta) = L(\theta) +  \mathbb E_{x\sim D}\left[\text{Var}((S_T - I_T)^+|x)\right]\Longrightarrow argmin_{\theta\in\Theta} \tilde{L}(\theta) = argmin_{\theta\in\Theta} L(\theta)$$
 
 Ergo, we can either have a neural network learn a monte carlo approximation of the price or learn directly sample payoffs.

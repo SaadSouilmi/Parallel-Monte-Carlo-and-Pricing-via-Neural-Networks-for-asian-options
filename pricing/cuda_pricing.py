@@ -87,7 +87,7 @@ def asian_option_1(
     Returns:
         - tuple[float, float]: mc estimator and corresponding variance"""
 
-    blockspergrid = blockspergrid = (n_paths + (threadsperblock - 1)) // threadsperblock
+    blockspergrid = (n_paths + (threadsperblock - 1)) // threadsperblock
     dt = np.sqrt(ttm / n_steps)
 
     # Initializing initial conditions on gpu memory
@@ -237,7 +237,7 @@ def asian_option_2(
 ################## Paralellizing over initial conditions ####################################
 
 
-# Sampling n_paths per thread / Every thread computes mc price estimate for certain (S, I)
+# Sampling n_paths per thread / Every thread computes mc price estimate for certain (t, S_t, I_t)
 @cuda.jit
 def asian_option_kernel_3(rng_states, S, I, X, n_paths, n_steps, t, dt, r, sigma):
     """Cuda kernel that computes samples n_paths payoffs of the asian option
@@ -345,7 +345,7 @@ def asian_option_3(
 # ************************************************************************************************
 
 
-# Sampling n_paths per block / Every block computes mc price estimate for certain (S, I)
+# Sampling n_paths per block / Every block computes mc price estimate for certain (t, S_t, I_t)
 @cuda.jit
 def asian_option_kernel_4(rng_states, S, I, X, n_paths, n_steps, t, dt, r, sigma):
     """Cuda kernel that computes samples n_paths payoffs of the asian option
