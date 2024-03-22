@@ -25,7 +25,7 @@ parser.add_argument("--batch_size_valid", default=1024, type=int)
 parser.add_argument("--lr", default=1e-3, type=float)
 parser.add_argument("--base_lr", default=1e-5, type=float)
 parser.add_argument("--max_lr", default=1e-4, type=float)
-parser.add_argument("--epochs", default=1000, type=int)
+parser.add_argument("--epochs", default=600, type=int)
 parser.add_argument("--eval_freq", default=1, type=int)
 
 args = parser.parse_args()
@@ -54,59 +54,82 @@ scheduler = optim.lr_scheduler.CyclicLR(
 loss_fn = torch.nn.MSELoss()
 
 
-# Data Loading
-print("########## LOADING TRAIN DATA ##########")
 dtype = torch.float32
-# train data
+## Loading train data
+
 with open("data/X_train.npy", "rb") as f:
     X_train = np.load(f)
-
 with open("data/Y_train_averaged_10kpaths.npy", "rb") as f:
     Y_train_averaged = np.load(f)
 
-dataset_train = torch.utils.data.TensorDataset(
-    torch.from_numpy(X_train).type(dtype),
-    torch.from_numpy(Y_train_averaged).type(dtype),
-)
-train_loader = torch.utils.data.DataLoader(
-    dataset_train,
-    batch_size=config["batch_size_train"],
-    shuffle=True,  # num_workers=8
-)
-print("########## TRAIN DATA LOADED ##########")
-print("    ")
-# test data
-print("########## LOADING VALIDATION DATA ##########")
+# Initializing torch dataset and dataloader
+dataset_train = {
+    f"{i+1}k_paths": torch.utils.data.TensorDataset(
+        torch.from_numpy(X_train).type(dtype),
+        torch.from_numpy(Y_train_averaged[:, i]).type(dtype),
+    )
+    for i in range(Y_train_averaged.shape[1])
+}
+train_loader = {
+    f"{i+1}k_paths": torch.utils.data.DataLoader(
+        dataset_train[f"{i+1}k_paths"],
+        batch_size=config["batch_size_train"],
+        shuffle=True,
+    )
+    for i in range(Y_train_averaged.shape[1])
+}
+
+## Loading validation data
+
+
 with open("data/X_valid.npy", "rb") as f:
-    X_valid = np.load("X_valid.npy")
+    X_valid = np.load(f)
 with open("data/Y_valid.npy", "rb") as f:
-    Y_valid = np.load("Y_valid.npy")
+    Y_valid = np.load(f)
+
+# Initializing torch dataset and dataloader
 dataset_valid = torch.utils.data.TensorDataset(
     torch.from_numpy(X_valid).type(dtype), torch.from_numpy(Y_valid).type(dtype)
 )
 valid_loader = torch.utils.data.DataLoader(
     dataset_valid,
     batch_size=config["batch_size_valid"],
-    shuffle=False,  # num_workers=8
+    shuffle=False,
 )
-print("########## VALIDATION DATA LOADED ##########")
-print("    ")
+
 
 if __name__ == "__main__":
     print(f"TRAINING ON DEVICE = {device}")
     print(config)
-    training_loss, validation_loss = train(
-        model,
-        optimizer,
-        scheduler,
-        loss_fn,
-        train_loader,
-        valid_loader,
-        device,
-        epochs=config["epochs"],
-        eval_freq=config["eval_freq"],
-        checkpoint=True,
-        checkpoint_path="checkpoints/checkpoint.pth",
-        training_loss_path="logs/training_loss",
-        validation_loss_path="logs/validation_loss",
-    )
+    for nb_paths, loader in train_loader.items():
+        model = MLP(
+            input_dim=config["input_dim"],
+            output_dim=config["output_dim"],
+            hidden_dim=config["hidden_dim"],
+            depth=config["depth"],
+            normalization=config["normalization"],
+        ).to(device)
+        optimizer = optim.SGD(model.parameters(), lr=config["lr"], momentum=0.9)
+        scheduler = optim.lr_scheduler.CyclicLR(
+            optimizer,
+            base_lr=config["base_lr"],
+            max_lr=config["max_lr"],
+            step_size_up=25,
+            step_size_down=25,
+        )
+        loss_fn = torch.nn.MSELoss()
+        training_loss, validation_loss = train(
+            model,
+            optimizer,
+            scheduler,
+            loss_fn,
+            loader,
+            valid_loader,
+            device,
+            epochs=config["epochs"],
+            eval_freq=config["eval_freq"],
+            checkpoint=True,
+            checkpoint_path=f"checkpoints/checkpoint_{nb_paths}.pth",
+            training_loss_path=f"logs/training_loss_{nb_paths}",
+            validation_loss_path=f"logs/validation_loss_{nb_paths}",
+        )

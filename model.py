@@ -94,17 +94,17 @@ def train(
 
                 # Setting checkpoints
                 if checkpoint and valid_loss < best_validation_loss:
-                    print("Checkpoint")
+                    # print("Checkpoint")
                     best_validation_loss = valid_loss
                     torch.save(model.state_dict(), checkpoint_path)
                 # Caching results
                 np.save(training_loss_path, training_loss)
                 np.save(validation_loss_path, validation_loss)
 
-            desc = f"Epoch: {epoch}, lr = {scheduler.get_last_lr()} , training_loss = {train_loss}, validation_loss = {valid_loss}"
+            desc = f"Epoch: {epoch}, lr = {scheduler.get_last_lr()[0]:.5f} , training_loss = {train_loss:.5f}, validation_loss = {best_validation_loss:.5f}"
             scheduler.step()
-            print(desc)
-            # progress_bar.set_description(desc)
-            # progress_bar.update(1)
+            # print(desc)
+            progress_bar.set_description_str(desc)
+            progress_bar.update(1)
 
     return training_loss, validation_loss

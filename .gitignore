@@ -1,6 +1,7 @@
 *train.npy
 *valid.npy
 *.pth
+*.npy
 venv
 __pycache__
 Y_train_averaged.npy
