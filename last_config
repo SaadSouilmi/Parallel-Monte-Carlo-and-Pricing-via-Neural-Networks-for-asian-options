@@ -1,1 +1,1 @@
-{"input_dim": 6, "output_dim": 1, "hidden_dim": 400, "depth": 4, "normalization": "layer", "batch_size_train": 2048, "batch_size_valid": 1024, "lr": 0.001, "base_lr": 1e-05, "max_lr": 0.0001, "epochs": 600, "eval_freq": 1}
+{"input_dim": 6, "output_dim": 1, "hidden_dim": 400, "depth": 4, "normalization": "layer", "batch_size_train": 2048, "batch_size_valid": 1024, "lr": 1e-05, "base_lr": 1e-05, "max_lr": 5e-05, "epochs": 800, "eval_freq": 1}

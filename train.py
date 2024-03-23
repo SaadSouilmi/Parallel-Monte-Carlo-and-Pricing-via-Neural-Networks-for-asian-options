@@ -22,10 +22,10 @@ parser.add_argument("--depth", default=4, type=int)
 parser.add_argument("--normalization", default="layer", type=str)
 parser.add_argument("--batch_size_train", default=2048, type=int)
 parser.add_argument("--batch_size_valid", default=1024, type=int)
-parser.add_argument("--lr", default=1e-3, type=float)
+parser.add_argument("--lr", default=1e-5, type=float)
 parser.add_argument("--base_lr", default=1e-5, type=float)
-parser.add_argument("--max_lr", default=1e-4, type=float)
-parser.add_argument("--epochs", default=600, type=int)
+parser.add_argument("--max_lr", default=5e-5, type=float)
+parser.add_argument("--epochs", default=800, type=int)
 parser.add_argument("--eval_freq", default=1, type=int)
 
 args = parser.parse_args()
@@ -114,8 +114,8 @@ if __name__ == "__main__":
             optimizer,
             base_lr=config["base_lr"],
             max_lr=config["max_lr"],
-            step_size_up=25,
-            step_size_down=25,
+            step_size_up=50,
+            step_size_down=50,
         )
         loss_fn = torch.nn.MSELoss()
         training_loss, validation_loss = train(
@@ -129,7 +129,7 @@ if __name__ == "__main__":
             epochs=config["epochs"],
             eval_freq=config["eval_freq"],
             checkpoint=True,
-            checkpoint_path=f"checkpoints/checkpoint_{nb_paths}.pth",
-            training_loss_path=f"logs/training_loss_{nb_paths}",
-            validation_loss_path=f"logs/validation_loss_{nb_paths}",
+            checkpoint_path=f"checkpoints/checkpoint_{nb_paths}_new.pth",
+            training_loss_path=f"logs/training_loss_{nb_paths}_new",
+            validation_loss_path=f"logs/validation_loss_{nb_paths}_new",
         )
