@@ -101,35 +101,64 @@ valid_loader = torch.utils.data.DataLoader(
 if __name__ == "__main__":
     print(f"TRAINING ON DEVICE = {device}")
     print(config)
-    for nb_paths, loader in train_loader.items():
-        model = MLP(
-            input_dim=config["input_dim"],
-            output_dim=config["output_dim"],
-            hidden_dim=config["hidden_dim"],
-            depth=config["depth"],
-            normalization=config["normalization"],
-        ).to(device)
-        optimizer = optim.SGD(model.parameters(), lr=config["lr"], momentum=0.9)
-        scheduler = optim.lr_scheduler.CyclicLR(
-            optimizer,
-            base_lr=config["base_lr"],
-            max_lr=config["max_lr"],
-            step_size_up=50,
-            step_size_down=50,
-        )
-        loss_fn = torch.nn.MSELoss()
-        training_loss, validation_loss = train(
-            model,
-            optimizer,
-            scheduler,
-            loss_fn,
-            loader,
-            valid_loader,
-            device,
-            epochs=config["epochs"],
-            eval_freq=config["eval_freq"],
-            checkpoint=True,
-            checkpoint_path=f"checkpoints/checkpoint_{nb_paths}_new.pth",
-            training_loss_path=f"logs/training_loss_{nb_paths}_new",
-            validation_loss_path=f"logs/validation_loss_{nb_paths}_new",
-        )
+    # for nb_paths, loader in train_loader.items():
+    #     model = MLP(
+    #         input_dim=config["input_dim"],
+    #         output_dim=config["output_dim"],
+    #         hidden_dim=config["hidden_dim"],
+    #         depth=config["depth"],
+    #         normalization=config["normalization"],
+    #     ).to(device)
+    #     optimizer = optim.SGD(model.parameters(), lr=config["lr"], momentum=0.9)
+    #     scheduler = optim.lr_scheduler.CyclicLR(
+    #         optimizer,
+    #         base_lr=config["base_lr"],
+    #         max_lr=config["max_lr"],
+    #         step_size_up=50,
+    #         step_size_down=50,
+    #     )
+    #     loss_fn = torch.nn.MSELoss()
+    #     training_loss, validation_loss = train(
+    #         model,
+    #         optimizer,
+    #         scheduler,
+    #         loss_fn,
+    #         loader,
+    #         valid_loader,
+    #         device,
+    #         epochs=config["epochs"],
+    #         eval_freq=config["eval_freq"],
+    #         checkpoint=True,
+    #         checkpoint_path=f"checkpoints/checkpoint_{nb_paths}_new.pth",
+    #         training_loss_path=f"logs/training_loss_{nb_paths}_new",
+    #         validation_loss_path=f"logs/validation_loss_{nb_paths}_new",
+    #     )
+
+    model = MLP(
+        input_dim=config["input_dim"],
+        output_dim=config["output_dim"],
+        hidden_dim=config["hidden_dim"],
+        depth=config["depth"],
+        normalization=config["normalization"],
+    ).to(device)
+    optimizer = optim.Adam(model.parameters(), lr=5e-5)
+    scheduler = optim.lr_scheduler.StepLR(
+        optimizer,
+        gamma=0.95,
+        step_size=20,
+    )
+    training_loss, validation_loss = train(
+        model,
+        optimizer,
+        scheduler,
+        loss_fn,
+        train_loader["1k_paths"],
+        valid_loader,
+        device,
+        epochs=config["epochs"],
+        eval_freq=config["eval_freq"],
+        checkpoint=True,
+        checkpoint_path=f"checkpoints/checkpoint_1k_paths_steplr.pth",
+        training_loss_path=f"logs/training_loss_1k_paths_steplr",
+        validation_loss_path=f"logs/validation_loss_1k_paths_steplr",
+    )
