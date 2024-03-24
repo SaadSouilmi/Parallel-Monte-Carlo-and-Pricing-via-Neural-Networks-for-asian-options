@@ -57,9 +57,9 @@ loss_fn = torch.nn.MSELoss()
 dtype = torch.float32
 ## Loading train data
 
-with open("data/X_train.npy", "rb") as f:
+with open("../data/X_train.npy", "rb") as f:
     X_train = np.load(f)
-with open("data/Y_train_averaged_10kpaths.npy", "rb") as f:
+with open("../data/Y_train_averaged_10kpaths.npy", "rb") as f:
     Y_train_averaged = np.load(f)
 
 # Initializing torch dataset and dataloader
@@ -82,9 +82,9 @@ train_loader = {
 ## Loading validation data
 
 
-with open("data/X_valid.npy", "rb") as f:
+with open("../data/X_valid.npy", "rb") as f:
     X_valid = np.load(f)
-with open("data/Y_valid.npy", "rb") as f:
+with open("../data/Y_valid.npy", "rb") as f:
     Y_valid = np.load(f)
 
 # Initializing torch dataset and dataloader
@@ -109,14 +109,12 @@ if __name__ == "__main__":
     #         depth=config["depth"],
     #         normalization=config["normalization"],
     #     ).to(device)
-    #     optimizer = optim.SGD(model.parameters(), lr=config["lr"], momentum=0.9)
-    #     scheduler = optim.lr_scheduler.CyclicLR(
-    #         optimizer,
-    #         base_lr=config["base_lr"],
-    #         max_lr=config["max_lr"],
-    #         step_size_up=50,
-    #         step_size_down=50,
-    #     )
+    #     optimizer = optim.Adam(model.parameters(), lr=5e-5)
+    # scheduler = optim.lr_scheduler.StepLR(
+    #     optimizer,
+    #     gamma=0.95,
+    #     step_size=20,
+    # )
     #     loss_fn = torch.nn.MSELoss()
     #     training_loss, validation_loss = train(
     #         model,
@@ -129,9 +127,9 @@ if __name__ == "__main__":
     #         epochs=config["epochs"],
     #         eval_freq=config["eval_freq"],
     #         checkpoint=True,
-    #         checkpoint_path=f"checkpoints/checkpoint_{nb_paths}_new.pth",
-    #         training_loss_path=f"logs/training_loss_{nb_paths}_new",
-    #         validation_loss_path=f"logs/validation_loss_{nb_paths}_new",
+    #         checkpoint_path=f"../checkpoints/checkpoint_{nb_paths}_steplr.pth",
+    #         training_loss_path=f"../logs/training_loss_{nb_paths}_steplr",
+    #         validation_loss_path=f"../logs/validation_loss_{nb_paths}_steplr",
     #     )
 
     model = MLP(
@@ -152,13 +150,13 @@ if __name__ == "__main__":
         optimizer,
         scheduler,
         loss_fn,
-        train_loader["1k_paths"],
+        train_loader["10k_paths"],
         valid_loader,
         device,
         epochs=config["epochs"],
         eval_freq=config["eval_freq"],
         checkpoint=True,
-        checkpoint_path=f"checkpoints/checkpoint_1k_paths_steplr.pth",
-        training_loss_path=f"logs/training_loss_1k_paths_steplr",
-        validation_loss_path=f"logs/validation_loss_1k_paths_steplr",
+        checkpoint_path=f"../checkpoints/checkpoint_10k_paths_steplr.pth",
+        training_loss_path=f"../logs/training_loss_10k_paths_steplr",
+        validation_loss_path=f"../logs/validation_loss_10k_paths_steplr",
     )
