@@ -1,5 +1,5 @@
 # Cuda-Project
-Cuda course project.
+Implenting Cuda kernels for monte carlo pricing and training neural networks on the sampled data.
 
 The black scholes model for the spot price under risk neutral measure is:
 $$dS_t = rS_tdt + \sigma S_tdW(t)$$
